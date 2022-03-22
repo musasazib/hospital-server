@@ -22,6 +22,10 @@ async function run() {
         const database = client.db('hospital');
         const servicesCollection = database.collection('services');
         const doctorsCollection = database.collection('doctors');
+        const appointmentCollection = database.collection('appointments');
+        const ordersCollection = database.collection('orders');
+
+
 
 
         // Get services API
@@ -36,6 +40,32 @@ async function run() {
             const cursor = doctorsCollection.find({});
             const doctor = await cursor.toArray();
             res.send(doctor);
+        });
+
+        app.get('/appointments', async (req, res) => {
+            const email = req.query.email;                                    // ---------
+            const date = new Date(req.query.date).toLocaleDateString();       // ----------
+            const query = { email: email, date: date };                        // filter user
+            // console.log(query);
+            const cursor = appointmentCollection.find(query);
+            const appointments = await cursor.toArray();
+            res.json(appointments);
+        })
+
+        app.post('/appointments', async (req, res) => {
+            const appointment = req.body;
+            // console.log(appointment);
+            // res.json({ message: 'hello' })
+            const result = await appointmentCollection.insertOne(appointment);
+            // console.log(result);
+            res.json(result);
+        });
+
+        app.get("/myBooking/:email", async (req, res) => {
+            const result = await ordersCollection.find({
+                email: req.params.email,
+            }).toArray();
+            res.send(result);
         });
 
     }
